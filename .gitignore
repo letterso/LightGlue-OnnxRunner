@@ -3,12 +3,14 @@ third_party
 
 # build
 build/
+include/Config.h
 
 # .vscode
 .vscode/
 
 # data
 data/
+assets/*.JPG
 
 # dynamic library/static library
 *.lib

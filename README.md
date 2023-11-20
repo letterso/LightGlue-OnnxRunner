@@ -78,5 +78,15 @@ The inference speed of onnxruntime-GPU will be slower when the first image is lo
 | SuperPoint | superpoint_lightglue_end2end.onnx | 50.1MB | Debug:2181ms Release: 1829ms |  Debug: 170ms Release:166ms  |
 | DISK | disk_lightglue_end2end.onnx | 48.9MB | Debug:3312ms Release: 3287ms | Debug: 285ms Release:285ms |
 
+### CHANGELOG
+#### 20231120
+- 适配v1.0.0: Fused LightGlue-ONNX接口改动
+
+- 适配linux平台，完成CPU下测试，移除部分Linux下用不到的代码
+
+- 修复可视化时，两张输入图片大小不一致时匹配特征计算错误导致的特征显示错误
+
+- 非end-to-end模式增加sp和lg的独立接口
+
 ### License
 This project is licensed under the MIT License.

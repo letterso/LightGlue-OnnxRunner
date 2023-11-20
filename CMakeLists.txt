@@ -5,46 +5,33 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (MSVC)
-    # Set the MSVC input code encoding format to utf-8
-    set(CMAKE_C_FLAGS /source-charset:utf-8)
-endif()
-
 message(STATUS "Project: LightGlue-OnnxRunner")
 message(STATUS "Root Path: ${CMAKE_SOURCE_DIR}")
 
-include(cmake/platform.cmake)  # checking platform
+# 设置文件读取目录
+SET (THIS_COM "${CMAKE_CURRENT_SOURCE_DIR}")
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/include/Config.h)
 
-# link third-party library onnxruntime-win-x64-1.14.1 and opencv4
-set(ONNXRUNTIME_DIR  ${CMAKE_SOURCE_DIR}/third_party/onnxruntime-win-x64-1.14.1)
-set(ONNXRUNTIME_GPU_DIR  ${CMAKE_SOURCE_DIR}/third_party/onnxruntime-win-x64-gpu-1.15.0)
+#onnxruntime providers
+option(onnxruntime_USE_CUDA "Build with CUDA support" OFF)
+option(onnxruntime_USE_TENSORRT "Build with TensorRT support" OFF)
+option(LIBPNG_ROOTDIR "libpng root dir")
+option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
 
-message(STATUS "ONNXRUNTIME_DIR Path: ${ONNXRUNTIME_DIR}")
-message(STATUS "ONNXRUNTIME_GPU_DIR Path: ${ONNXRUNTIME_GPU_DIR}")
+set(ONNXRUNTIME_ROOTDIR "/usr/local")
+include_directories("${ONNXRUNTIME_ROOTDIR}/include")
+link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
+include_directories(include)
+include_directories(include/onnx)
 
-# include_directories(${ONNXRUNTIME_DIR}/include)
-# link_directories("${ONNXRUNTIME_DIR}/lib")
-# set(ONNXRUNTIME_LIB onnxruntime onnxruntime_providers_shared)
+find_package(JPEG)
+find_package(PNG)
+find_package(OpenCV 4)
 
-include_directories(${ONNXRUNTIME_GPU_DIR}/include)
-link_directories("${ONNXRUNTIME_GPU_DIR}/lib")
-set(ONNXRUNTIME_GPU_LIB onnxruntime onnxruntime_providers_shared onnxruntime_providers_cuda)
-
-set(OPENCV_DIR  ${CMAKE_SOURCE_DIR}/third_party/opencv480/build)
-message(STATUS "OPENCV_DIR Path: ${OPENCV_DIR}")
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${OPENCV_DIR}/include)
-link_directories("${OPENCV_DIR}/x64/vc16/lib")
-set(OpenCV_LIB opencv_world480)
-
-
-# compile own file
-file(GLOB SRC_LIST 
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-)
-add_executable(main ${SRC_LIST})
-target_compile_features(main PRIVATE cxx_std_17)
-
-target_link_libraries(main ${OpenCV_LIB} ${ONNXRUNTIME_LIB} ${OpenCV_LIBS})
-target_link_libraries(main ${OpenCV_LIB} ${ONNXRUNTIME_GPU_LIB} ${OpenCV_LIBS})
+add_executable(main
+   ./src/main.cpp
+   ./src/LightGlueDecoupleOnnxRunner.cpp
+   ./src/LightGlueOnnxRunner.cpp
+   ./src/transform.cpp)
+target_link_libraries(main ${OpenCV_LIBRARIES} onnxruntime)
 
